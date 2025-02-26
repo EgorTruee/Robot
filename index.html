@@ -2,89 +2,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    body {height: 100vh;overflow: hidden;margin: 0;}
-    .parent {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr);
-        grid-column-gap: 0px;
-        grid-row-gap: 0px;
-        height: 100%;
-        }
-        
-        .div1 { grid-area: 1 / 2 / 3 / 3; height: 100vh;}
-        .div2 { grid-area: 1 / 1 / 2 / 2; padding: 0.5rem;}
-        .div3 { grid-area: 2 / 1 / 3 / 2; }
-        .parent-j {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-        grid-column-gap: 0px;
-        grid-row-gap: 0px;
-        height: 100%;
-        /* justify-items: center;
-        align-items: center; */
-        }
-
-        .div-u { grid-area: 1 / 2 / 2 / 3; border: 1px solid gray;padding:2rem 3rem; border-radius:100% 100% 0 0;/**display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;**/}
-        .div-l { grid-area: 2 / 1 / 3 / 2; border: 1px solid gray;padding:2.95rem 2.4rem; border-radius:100% 0 0 100%;}
-        .div-d { grid-area: 3 / 2 / 4 / 3; border: 1px solid gray;padding:2rem 3rem; border-radius:0 0 100% 100%;}
-        .div-r { grid-area: 2 / 3 / 3 / 4; border: 1px solid gray;padding:2.95rem 2.4rem; border-radius:0 100% 100% 0;}
-        .div-s { grid-area: 2 / 2 / 3 / 3; border: 1px solid rgb(233, 80, 80);padding:3rem 2.3rem; }
-
-        .analog {border:1px solid rgb(216, 211, 211);display: flex;border-radius:15px;justify-content: space-between;align-items: stretch;}
-        .analog-value{font-size:5rem;}
-        .btn-set{width: 35%;border-radius:0 10px 10px 0;border:none;background:#524FF0;color:white;font-size:1.3rem}
-        .analog-data{display: flex;flex-wrap: wrap;align-content: stretch;justify-content: flex-start;padding: 0.5rem;}
-        .div-slider{width:100%;}
-        .slider{width: 90%;}
-        .circ-btn{border-radius:100%;border:1px solid red;width:180px;height:180px;background:none;}
-        @media screen and (orientation: portrait) {
-            .parent {
-                display: grid;
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(3, 1fr);
-                grid-column-gap: 0px;
-                grid-row-gap: 0px;
-                }
-
-                .div1 { grid-area: 3 / 1 / 4 / 2; height: auto;}
-                .div2 { grid-area: 2 / 1 / 3 / 2; }
-                .div3 { grid-area: 1 / 1 / 2 / 2; }
-        }
+	body
+	{
+		display: flex;
+		justify-content: center;
+	}
+	.container
+	{
+		width: 20%;
+		height: 100%;
+	}
+	.slider
+	{
+		-webkit-appearance: none;
+		width: 90vh;
+		height: 25px;
+		background: #d3d3d3;
+		transform-origin: bottom left;
+		transform: rotate(90deg);
+	}
 </style>
-<div class="parent">
-    <div class="div1">
-        <div class="parent-j">
-            <button class="div-u" id="btn-up">F</button>
-            <button class="div-l" id="btn-lt">L</button>
-            <button class="div-d" id="btn-dn">B</button>
-            <button class="div-r" id="btn-rt">R</button>
-            <button class="div-s" id="btn-sp">STOP</button>
-        </div>
-    </div>
-    <div class="div2">
-        <div class="analog">
-            <div class="analog-data"><div class="analog-value" id="slider-txt">0</div>
-                <div class="div-slider"><input id="slider-val" class="slider" type="range" value="0" min="0" max="255"/></div>
-            </div> 
-            <button class="btn-set" id="btn-set">SET</button>
-        </div>
-    </div>
-    <div class="div3"><button class="circ-btn" id="btn-fire">RELAY</button><button class="circ-btn" id="btn-led">LED</button></div>
+<div class = "container">
+	<p>Value: <span id = "LeftValue"></span></p>
+	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "LeftSlider">
+</div>
+<div class = "container">
+	<p>Value: <span id = "RightValue"></span></p>
+	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "RightSlider">
 </div>
 
 <script>
 let gateway = `ws://${window.location.hostname}/ws`;
-
-let sliderTxt = document.querySelector("#slider-txt");
-let sliderVal = document.querySelector("#slider-val");
-let fireBtn = document.querySelector("#btn-fire");
-let ledBtn = document.querySelector("#btn-led");
-let ledState = 0;
-let fireState = 0;
-
+let LeftSlider = document.getElementById("LeftSlider");
+let LeftOutput = document.getElementById("LeftValue");
 let websocket;
+
 window.addEventListener('load', onload);
 
 function onload(event) {
