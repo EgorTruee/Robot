@@ -18,8 +18,8 @@
 		width: 90vh;
 		height: 25px;
 		background: #d3d3d3;
-		transform-origin: bottom left;
-		transform: rotate(90deg);
+		transform-origin: center left;
+		transform: rotate(-90deg) translate(-90vh, 10px);
 	}
 </style>
 <div class = "container">
@@ -35,38 +35,29 @@
 let gateway = `ws://${window.location.hostname}/ws`;
 let LeftSlider = document.getElementById("LeftSlider");
 let LeftOutput = document.getElementById("LeftValue");
+let RightSlider = document.getElementById("RightSlider");
+let RightOutput = document.getElementById("RightValue");
 let websocket;
 
 window.addEventListener('load', onload);
 
 function onload(event) {
     initWebSocket();
-    initButtons();
+    init();
 }
 
-function initButtons() {
-  document.querySelector('#btn-up').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:1})) });
-  document.querySelector('#btn-dn').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:2})) });
-  document.querySelector('#btn-lt').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:3})) });
-  document.querySelector('#btn-rt').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:4})) });
-  document.querySelector('#btn-sp').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:0})) });
+function init() {
 
-  document.querySelector('#btn-set').addEventListener('click', ()=>{ websocket.send(JSON.stringify({slider: parseInt(sliderVal.value)})) });
-  document.querySelector('#btn-led').addEventListener('click', ()=>{ 
-    ledState = !ledState;
-    toggleBg(ledBtn, ledState);
-    websocket.send(JSON.stringify({led:ledState ? 1 : 0})); 
-  });
-  
-  document.querySelector('#btn-fire').addEventListener('click', ()=>{ 
-    fireState = !fireState;
-    toggleBg(fireBtn, fireState);
-    websocket.send(JSON.stringify({fire:fireState ? 1 : 0})); 
-  });
-
-  document.querySelector('#slider-val').addEventListener('change', ()=>{
-    document.querySelector("#slider-txt").innerHTML = sliderVal.value;
-  });
+	LeftOutput.innerHTML = LeftSlider.value;
+	LeftSlider.oninput = function() {
+		LeftOutput.innerHTML = this.value;
+		websocket.send(JSON.stringify({Left : this.value}));
+	}
+	RightOutput.innerHTML = RightSlider.value;
+	RightSlider.oninput = function() {
+		RightOutput.innerHTML = this.value;
+		websocket.send(JSON.stringify({Right : this.value}));
+	}
 }
 
 function toggleBg(btn, state) {
