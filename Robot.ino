@@ -23,11 +23,8 @@ const char* password = "";
 
 #define RELAY_PIN 15 // pin G15
 
-int speed = 255;
-int direction = 0;
-int slider = 0;
-int fire = 0;
-int led = 0;
+int Left = 0;
+int Right = 0;
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -47,119 +44,62 @@ const char index_html[] PROGMEM = R"rawliteral(
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    body {height: 100vh;overflow: hidden;margin: 0;}
-    .parent {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr);
-        grid-column-gap: 0px;
-        grid-row-gap: 0px;
-        height: 100%;
-        }
-        
-        .div1 { grid-area: 1 / 2 / 3 / 3; height: 100vh;}
-        .div2 { grid-area: 1 / 1 / 2 / 2; padding: 0.5rem;}
-        .div3 { grid-area: 2 / 1 / 3 / 2; }
-        .parent-j {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-        grid-column-gap: 0px;
-        grid-row-gap: 0px;
-        height: 100%;
-        /* justify-items: center;
-        align-items: center; */
-        }
-
-        .div-u { grid-area: 1 / 2 / 2 / 3; border: 1px solid gray;padding:2rem 3rem; border-radius:100% 100% 0 0;/**display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;**/}
-        .div-l { grid-area: 2 / 1 / 3 / 2; border: 1px solid gray;padding:2.95rem 2.4rem; border-radius:100% 0 0 100%;}
-        .div-d { grid-area: 3 / 2 / 4 / 3; border: 1px solid gray;padding:2rem 3rem; border-radius:0 0 100% 100%;}
-        .div-r { grid-area: 2 / 3 / 3 / 4; border: 1px solid gray;padding:2.95rem 2.4rem; border-radius:0 100% 100% 0;}
-        .div-s { grid-area: 2 / 2 / 3 / 3; border: 1px solid rgb(233, 80, 80);padding:3rem 2.3rem; }
-
-        .analog {border:1px solid rgb(216, 211, 211);display: flex;border-radius:15px;justify-content: space-between;align-items: stretch;}
-        .analog-value{font-size:5rem;}
-        .btn-set{width: 35%;border-radius:0 10px 10px 0;border:none;background:#524FF0;color:white;font-size:1.3rem}
-        .analog-data{display: flex;flex-wrap: wrap;align-content: stretch;justify-content: flex-start;padding: 0.5rem;}
-        .div-slider{width:100%;}
-        .slider{width: 90%;}
-        .circ-btn{border-radius:100%;border:1px solid red;width:180px;height:180px;background:none;}
-        @media screen and (orientation: portrait) {
-            .parent {
-                display: grid;
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(3, 1fr);
-                grid-column-gap: 0px;
-                grid-row-gap: 0px;
-                }
-
-                .div1 { grid-area: 3 / 1 / 4 / 2; height: auto;}
-                .div2 { grid-area: 2 / 1 / 3 / 2; }
-                .div3 { grid-area: 1 / 1 / 2 / 2; }
-        }
+	body
+	{
+		display: flex;
+		justify-content: center;
+	}
+	.container
+	{
+		width: 20%;
+		height: 100%;
+	}
+	.slider
+	{
+		-webkit-appearance: none;
+		width: 90vh;
+		height: 25px;
+		background: #d3d3d3;
+		transform-origin: center left;
+		transform: rotate(-90deg) translate(-90vh, 10px);
+	}
 </style>
-<div class="parent">
-    <div class="div1">
-        <div class="parent-j">
-            <button class="div-u" id="btn-up">F</button>
-            <button class="div-l" id="btn-lt">L</button>
-            <button class="div-d" id="btn-dn">B</button>
-            <button class="div-r" id="btn-rt">R</button>
-            <button class="div-s" id="btn-sp">STOP</button>
-        </div>
-    </div>
-    <div class="div2">
-        <div class="analog">
-            <div class="analog-data"><div class="analog-value" id="slider-txt">0</div>
-                <div class="div-slider"><input id="slider-val" class="slider" type="range" value="0" min="0" max="255"/></div>
-            </div> 
-            <button class="btn-set" id="btn-set">SET</button>
-        </div>
-    </div>
-    <div class="div3"><button class="circ-btn" id="btn-fire">RELAY</button><button class="circ-btn" id="btn-led">LED</button></div>
+<div class = "container">
+	<p>Value: <span id = "LeftValue"></span></p>
+	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "LeftSlider">
+</div>
+<div class = "container">
+	<p>Value: <span id = "RightValue"></span></p>
+	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "RightSlider">
 </div>
 
 <script>
 let gateway = `ws://${window.location.hostname}/ws`;
-
-let sliderTxt = document.querySelector("#slider-txt");
-let sliderVal = document.querySelector("#slider-val");
-let fireBtn = document.querySelector("#btn-fire");
-let ledBtn = document.querySelector("#btn-led");
-let ledState = 0;
-let fireState = 0;
-
+let LeftSlider = document.getElementById("LeftSlider");
+let LeftOutput = document.getElementById("LeftValue");
+let RightSlider = document.getElementById("RightSlider");
+let RightOutput = document.getElementById("RightValue");
 let websocket;
+
 window.addEventListener('load', onload);
 
 function onload(event) {
     initWebSocket();
-    initButtons();
+    init();
 }
 
-function initButtons() {
-  document.querySelector('#btn-up').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:1})) });
-  document.querySelector('#btn-dn').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:2})) });
-  document.querySelector('#btn-lt').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:3})) });
-  document.querySelector('#btn-rt').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:4})) });
-  document.querySelector('#btn-sp').addEventListener('click', ()=>{ websocket.send(JSON.stringify({dir:0})) });
+function init() {
 
-  document.querySelector('#btn-set').addEventListener('click', ()=>{ websocket.send(JSON.stringify({slider: parseInt(sliderVal.value)})) });
-  document.querySelector('#btn-led').addEventListener('click', ()=>{ 
-    ledState = !ledState;
-    toggleBg(ledBtn, ledState);
-    websocket.send(JSON.stringify({led:ledState ? 1 : 0})); 
-  });
-  
-  document.querySelector('#btn-fire').addEventListener('click', ()=>{ 
-    fireState = !fireState;
-    toggleBg(fireBtn, fireState);
-    websocket.send(JSON.stringify({fire:fireState ? 1 : 0})); 
-  });
-
-  document.querySelector('#slider-val').addEventListener('change', ()=>{
-    document.querySelector("#slider-txt").innerHTML = sliderVal.value;
-  });
+	LeftOutput.innerHTML = LeftSlider.value;
+	LeftSlider.oninput = function() {
+		LeftOutput.innerHTML = this.value;
+		websocket.send(JSON.stringify({Left : this.value}));
+	}
+	RightOutput.innerHTML = RightSlider.value;
+	RightSlider.oninput = function() {
+		RightOutput.innerHTML = this.value;
+		websocket.send(JSON.stringify({Right : this.value}));
+	}
 }
 
 function toggleBg(btn, state) {
@@ -196,6 +136,7 @@ function getReadings(){
 function onMessage(event) {
     websocket.send("getReadings");
 }</script>
+
 )rawliteral";
 
 
@@ -225,43 +166,30 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     
     JSONVar myObject = JSON.parse((const char*)data);
-    if (myObject.hasOwnProperty("slider")) {
-      slider = (int)myObject["slider"];
+    if (myObject.hasOwnProperty("Left")) {
+      Left = (int)myObject["Left"];
     }
-    else if (myObject.hasOwnProperty("fire")) {
-      fire = (int)myObject["fire"];      
+    if (myObject.hasOwnProperty("Right"))
+    {
+      Right = (int)myObject["Right"];
     }
-    else if (myObject.hasOwnProperty("led")) {
-      led = (int)myObject["led"];      
-    }
-    else if (myObject.hasOwnProperty("dir")) {
-      direction = (int)myObject["dir"];
-      move(direction, speed);      
-    }
-
     String sensorReadings = getSensorReadings();
     notifyClients(sensorReadings);
   }
 }
 
-void move(int direction, int speed) {  
-  if (direction == 1) { // Forward
-    forward(motor1, motor2, speed);
+void move()) {  
+  
+  motor1.drive(Left);
+  motor2.drive(Right);
+
+  if(Left == 0)
+  {
+    motor1.break();
   }
-  else if (direction == 2) { // Backward
-    back(motor1, motor2, speed);
-  }
-  else if (direction == 3) { // Left
-    motor1.drive(-255); // speed, optional duration
-    motor2.drive(255);
-  }
-  else if (direction == 4) { // Right
-    motor1.drive(255); // speed, optional duration
-    motor2.drive(-255);
-  }
-  else if (direction == 0) { // Stop
-    motor1.brake();
-    motor2.brake();
+  if(Right == 0)
+  {
+    motor2.break();
   }
 }
 
@@ -314,7 +242,8 @@ void loop()
     NeoPixel.show();
   }
 
-
+  move();
+  
   if (fire == 1) {
     digitalWrite(RELAY_PIN, HIGH);
   }
