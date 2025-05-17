@@ -5,11 +5,6 @@
 #include <Arduino_JSON.h>
 #include <Adafruit_NeoPixel.h>
 
-#define PIN_NEO_PIXEL  16 
-#define NUM_PIXELS     16 
-
-Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
-
 #define AIN1 13 // ESP32 Pin D13 to TB6612FNG Pin AIN1
 #define BIN1 12 // ESP32 Pin D12 to TB6612FNG Pin BIN1
 #define AIN2 14 // ESP32 Pin D14 to TB6612FNG Pin AIN2
@@ -139,13 +134,6 @@ function onMessage(event) {
 
 )rawliteral";
 
-
-String getSensorReadings(){
-  readings["s"] = String(slider);
-  String jsonString = JSON.stringify(readings);
-  return jsonString;
-}
-
 void initWiFi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -173,23 +161,21 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     {
       Right = (int)myObject["Right"];
     }
-    String sensorReadings = getSensorReadings();
-    notifyClients(sensorReadings);
   }
 }
 
-void move()) {  
+void move() {  
   
   motor1.drive(Left);
   motor2.drive(Right);
 
   if(Left == 0)
   {
-    motor1.break();
+    motor1.brake();
   }
   if(Right == 0)
   {
-    motor2.break();
+    motor2.brake();
   }
 }
 
@@ -217,7 +203,6 @@ void initWebSocket() {
 
 void setup()
 {
-  NeoPixel.begin(); 
   Serial.begin(115200);
   pinMode(RELAY_PIN, OUTPUT);  
 
@@ -231,24 +216,6 @@ void setup()
 
 void loop()
 {
-  if (led == 1) {
-    for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {          
-      NeoPixel.setPixelColor(pixel, NeoPixel.Color(255, 255, 255));
-    }
-    NeoPixel.show();
-  }
-  else {
-    NeoPixel.clear();
-    NeoPixel.show();
-  }
-
   move();
-  
-  if (fire == 1) {
-    digitalWrite(RELAY_PIN, HIGH);
-  }
-  else {
-    digitalWrite(RELAY_PIN, LOW);
-  }
   //Serial.println(String(direction) + " " + String(slider) + " " + String(fire) + " " + String(led));
 }
