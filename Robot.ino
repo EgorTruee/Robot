@@ -3,7 +3,6 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <Arduino_JSON.h>
-#include <Adafruit_NeoPixel.h>
 
 #define AIN1 13 // ESP32 Pin D13 to TB6612FNG Pin AIN1
 #define BIN1 12 // ESP32 Pin D12 to TB6612FNG Pin BIN1
@@ -13,8 +12,8 @@
 #define PWMB 25 // ESP32 Pin D25 to TB6612FNG Pin PWMB
 #define STBY 33 // ESP32 Pin D33 to TB6612FNG Pin STBY
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "Password";
+const char* password = "1234567891";
 
 #define RELAY_PIN 15 // pin G15
 
@@ -39,32 +38,58 @@ const char index_html[] PROGMEM = R"rawliteral(
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-	body
-	{
-		display: flex;
-		justify-content: center;
-	}
-	.container
-	{
-		width: 20%;
-		height: 100%;
-	}
-	.slider
-	{
-		-webkit-appearance: none;
-		width: 90vh;
-		height: 25px;
-		background: #d3d3d3;
-		transform-origin: center left;
-		transform: rotate(-90deg) translate(-90vh, 10px);
-	}
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+			touch-action: non
+        }
+        
+        .slider-container {
+            margin-bottom: 300px; /* Увеличенное расстояние между слайдерами */
+        }
+        
+        .slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        
+        .value-display {
+            margin-top: 5px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
 </style>
-<div class = "container">
-	<p>Value: <span id = "LeftValue"></span></p>
+<div class = "slider-container">
+	<p>Left Motor Value: <span id = "LeftValue"></span></p>
 	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "LeftSlider">
 </div>
-<div class = "container">
-	<p>Value: <span id = "RightValue"></span></p>
+<div class = "slider-container">
+	<p>Right Motor Value: <span id = "RightValue"></span></p>
 	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "RightSlider">
 </div>
 
@@ -132,6 +157,7 @@ function onMessage(event) {
     websocket.send("getReadings");
 }</script>
 
+
 )rawliteral";
 
 void initWiFi() {
@@ -139,7 +165,11 @@ void initWiFi() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi ..");
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print('.');
+    switch(WiFi.status())
+    {
+      case WL_CONNECTED:
+    }
+
     delay(1000);
   }
   Serial.println(WiFi.localIP());

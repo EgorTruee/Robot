@@ -2,32 +2,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-	body
-	{
-		display: flex;
-		justify-content: center;
-	}
-	.container
-	{
-		width: 20%;
-		height: 100%;
-	}
-	.slider
-	{
-		-webkit-appearance: none;
-		width: 90vh;
-		height: 25px;
-		background: #d3d3d3;
-		transform-origin: center left;
-		transform: rotate(-90deg) translate(-90vh, 10px);
-	}
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+			touch-action: none;
+        }
+        
+        .slider-container {
+            margin-bottom: 300px; /* Увеличенное расстояние между слайдерами */
+        }
+        
+        .slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 90vh;
+			height: 25px;
+			background: #d3d3d3;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        
+        .value-display {
+            margin-top: 5px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
 </style>
-<div class = "container">
-	<p>Value: <span id = "LeftValue"></span></p>
+<div class = "slider-container">
+	<p>Left Motor Value: <span id = "LeftValue"></span></p>
 	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "LeftSlider">
 </div>
-<div class = "container">
-	<p>Value: <span id = "RightValue"></span></p>
+<div class = "slider-container">
+	<p>Right Motor Value: <span id = "RightValue"></span></p>
 	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "RightSlider">
 </div>
 
