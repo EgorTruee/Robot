@@ -136,7 +136,7 @@ function ConnectEvent() {
 	Connected = !Connected;
 	RightSlider.value = LeftSlider.value;
 	RightOutput.innerHTML = LeftSlider.value;
-	websocket.send(JSON.stringify({Right : LeftSlider.valueAsNumber}))
+	websocket.send(JSON.stringify({Right : LeftSlider.value}))
 }
 function onload(event) {
     initWebSocket();
@@ -194,13 +194,22 @@ function initWebSocket() {
 
 function onOpen(event) {
     console.log('Connection opened');
+    getReadings();
 }
 
 function onClose(event) {
     console.log('Connection closed');
     setTimeout(initWebSocket, 2000);
 }
+
+function getReadings(){
+    websocket.send("getReadings");
+}
+
+function onMessage(event) {
+    websocket.send("getReadings");
 }</script>
+
 )rawliteral";
 
 void initWiFi() {
