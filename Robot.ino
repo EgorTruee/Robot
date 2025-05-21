@@ -12,7 +12,7 @@
 #define PWMB 25 // ESP32 Pin D25 to TB6612FNG Pin PWMB
 #define STBY 33 // ESP32 Pin D33 to TB6612FNG Pin STBY
 
-const char* ssid = "Password";
+const char* ssid = "Pasword";
 const char* password = "1234567891";
 
 #define RELAY_PIN 15 // pin G15
@@ -136,7 +136,7 @@ function ConnectEvent() {
 	Connected = !Connected;
 	RightSlider.value = LeftSlider.value;
 	RightOutput.innerHTML = LeftSlider.value;
-	websocket.send(JSON.stringify({Right : LeftSlider.value}))
+	websocket.send(JSON.stringify({Right : LeftSlider.valueAsNumber}))
 }
 function onload(event) {
     initWebSocket();
@@ -152,11 +152,11 @@ function init() {
 			LeftOutput.innerHTML = this.value;
 			RightOutput.innerHTML = this.value;
 			RightSlider.value = this.value;
-			websocket.send(JSON.stringify({Left : this.value, Right : this.value}));
+			websocket.send(JSON.stringify({Left : this.valueAsNumber, Right : this.valueAsNumber}));
 		}
 		else {
 			LeftOutput.innerHTML = this.value;
-			websocket.send(JSON.stringify({Left : this.value}));
+			websocket.send(JSON.stringify({Left : this.valueAsNumber}));
 		}
 	}
 	RightOutput.innerHTML = RightSlider.value;
@@ -166,11 +166,11 @@ function init() {
 			LeftOutput.innerHTML = this.value;
 			RightOutput.innerHTML = this.value;
 			LeftSlider.value = this.value;
-			websocket.send(JSON.stringify({Left : this.value, Right : this.value}));
+			websocket.send(JSON.stringify({Left : this.valueAsNumber, Right : this.valueAsNumber}));
 		}
 		else {
 		RightOutput.innerHTML = this.value;
-		websocket.send(JSON.stringify({Right : this.value}));
+		websocket.send(JSON.stringify({Right : this.valueAsNumber}));
 		}
 	}
 }
@@ -194,20 +194,12 @@ function initWebSocket() {
 
 function onOpen(event) {
     console.log('Connection opened');
-    getReadings();
 }
 
 function onClose(event) {
     console.log('Connection closed');
     setTimeout(initWebSocket, 2000);
 }
-
-function getReadings(){
-    websocket.send("getReadings");
-}
-
-function onMessage(event) {
-    websocket.send("getReadings");
 }</script>
 )rawliteral";
 
