@@ -134,6 +134,8 @@ function init() {
 		}
 		else {
 		RightOutput.innerHTML = this.value;
+		let str = JSON.stringify({Right : this.valueAsNumber});
+		console.log(str);
 		websocket.send(JSON.stringify({Right : this.valueAsNumber}));
 		}
 	}

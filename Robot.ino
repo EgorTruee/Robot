@@ -136,7 +136,7 @@ function ConnectEvent() {
 	Connected = !Connected;
 	RightSlider.value = LeftSlider.value;
 	RightOutput.innerHTML = LeftSlider.value;
-	websocket.send(JSON.stringify({Right : LeftSlider.value}))
+	websocket.send(JSON.stringify({Right : LeftSlider.valueAsNumber}))
 }
 function onload(event) {
     initWebSocket();
