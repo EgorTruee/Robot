@@ -34,9 +34,9 @@ Motor motor1 = Motor(AIN1, AIN2, PWMA, offsetA, STBY, 5000, 8, 1);
 Motor motor2 = Motor(BIN1, BIN2, PWMB, offsetB, STBY, 5000, 8, 2);
 
 const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML><html>
+<!DOCTYPE HTML><html lang = "ru">
+<meta charset = "UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
         body {
             font-family: Arial, sans-serif;
@@ -83,11 +83,19 @@ const char index_html[] PROGMEM = R"rawliteral(
 			background-color: red;
 			width: 100px;
 			height: 100px;
+			transform: rotate(90deg);
+		}
+		.connectButton {
+			background-color: green;
+			width: 100px;
+			height: 100px;
+			transform: rotate(90deg);
 		}
 		.buttonConteiner {
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			margin: 5px;
 		}
 </style>
 <div class = "slider-container">
@@ -99,7 +107,10 @@ const char index_html[] PROGMEM = R"rawliteral(
 	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "RightSlider">
 </div>
 <div class = "buttonConteiner">
-	<button class = "resetButton" onclick = "ResetEvent()" id = "resetButton"></button>
+	<button class = "resetButton" onclick = "ResetEvent()">Сбрость</button>
+</div>
+<div class = "buttonConteiner">
+	<button class = "connectButton" onclick = "ConnectEvent()">Соеденить</button>
 </div>
 <script>
 let gateway = `ws://${window.location.hostname}/ws`;
@@ -107,6 +118,7 @@ let LeftSlider = document.getElementById("LeftSlider");
 let LeftOutput = document.getElementById("LeftValue");
 let RightSlider = document.getElementById("RightSlider");
 let RightOutput = document.getElementById("RightValue");
+let Connected = false;
 let websocket;
 
 window.addEventListener('load', onload);
@@ -120,6 +132,12 @@ function ResetEvent() {
 	
 	websocket.send(JSON.stringify({Right : 0, Left : 0}));
 }
+function ConnectEvent() {
+	Connected = !Connected;
+	RightSlider.value = LeftSlider.value;
+	RightOutput.innerHTML = LeftSlider.value;
+	websocket.send(JSON.stringify({Right : LeftSlider.value}))
+}
 function onload(event) {
     initWebSocket();
     init();
@@ -129,13 +147,31 @@ function init() {
 
 	LeftOutput.innerHTML = LeftSlider.value;
 	LeftSlider.oninput = function() {
-		LeftOutput.innerHTML = this.value;
-		websocket.send(JSON.stringify({Left : this.value}));
+	
+		if(Connected) {
+			LeftOutput.innerHTML = this.value;
+			RightOutput.innerHTML = this.value;
+			RightSlider.value = this.value;
+			websocket.send(JSON.stringify({Left : this.value, Right : this.value}));
+		}
+		else {
+			LeftOutput.innerHTML = this.value;
+			websocket.send(JSON.stringify({Left : this.value}));
+		}
 	}
 	RightOutput.innerHTML = RightSlider.value;
 	RightSlider.oninput = function() {
+	
+		if(Connected) {
+			LeftOutput.innerHTML = this.value;
+			RightOutput.innerHTML = this.value;
+			LeftSlider.value = this.value;
+			websocket.send(JSON.stringify({Left : this.value, Right : this.value}));
+		}
+		else {
 		RightOutput.innerHTML = this.value;
 		websocket.send(JSON.stringify({Right : this.value}));
+		}
 	}
 }
 
