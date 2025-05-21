@@ -45,11 +45,10 @@ const char index_html[] PROGMEM = R"rawliteral(
             padding: 20px;
 			touch-action: non
         }
-        
         .slider-container {
-            margin-bottom: 300px; /* Увеличенное расстояние между слайдерами */
+			margin-top: 150px;
+            margin-bottom: 150px; /* Увеличенное расстояние между слайдерами */
         }
-        
         .slider {
             width: 100%;
             height: 10px;
@@ -58,7 +57,6 @@ const char index_html[] PROGMEM = R"rawliteral(
             outline: none;
             -webkit-appearance: none;
         }
-        
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -68,7 +66,6 @@ const char index_html[] PROGMEM = R"rawliteral(
             background: #4CAF50;
             cursor: pointer;
         }
-        
         .slider::-moz-range-thumb {
             width: 20px;
             height: 20px;
@@ -76,13 +73,22 @@ const char index_html[] PROGMEM = R"rawliteral(
             background: #4CAF50;
             cursor: pointer;
         }
-        
         .value-display {
             margin-top: 5px;
             text-align: center;
             font-size: 14px;
             color: #666;
         }
+		.resetButton {
+			background-color: red;
+			width: 100px;
+			height: 100px;
+		}
+		.buttonConteiner {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
 </style>
 <div class = "slider-container">
 	<p>Left Motor Value: <span id = "LeftValue"></span></p>
@@ -92,7 +98,9 @@ const char index_html[] PROGMEM = R"rawliteral(
 	<p>Right Motor Value: <span id = "RightValue"></span></p>
 	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "RightSlider">
 </div>
-
+<div class = "buttonConteiner">
+	<button class = "resetButton" onclick = "ResetEvent()" id = "resetButton"></button>
+</div>
 <script>
 let gateway = `ws://${window.location.hostname}/ws`;
 let LeftSlider = document.getElementById("LeftSlider");
@@ -103,6 +111,15 @@ let websocket;
 
 window.addEventListener('load', onload);
 
+function ResetEvent() {
+	LeftSlider.value = 0;
+	LeftOutput.innerHTML = 0;
+	
+	RightSlider.value = 0;
+	RightOutput.innerHTML = 0;
+	
+	websocket.send(JSON.stringify({Right : 0, Left : 0}));
+}
 function onload(event) {
     initWebSocket();
     init();
@@ -156,8 +173,6 @@ function getReadings(){
 function onMessage(event) {
     websocket.send("getReadings");
 }</script>
-
-
 )rawliteral";
 
 void initWiFi() {
