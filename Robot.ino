@@ -107,7 +107,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 	<input type = "range" min = "-255" max = "255" value = "0" class = "slider" id = "RightSlider">
 </div>
 <div class = "buttonConteiner">
-	<button class = "resetButton" onclick = "ResetEvent()">Сбрость</button>
+	<button class = "resetButton" onclick = "ResetEvent()">Сбросить</button>
 </div>
 <div class = "buttonConteiner">
 	<button class = "connectButton" onclick = "ConnectEvent()">Соеденить</button>
@@ -236,6 +236,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     
     JSONVar myObject = JSON.parse((const char*)data);
     if (myObject.hasOwnProperty("Left")) {
+      Sereal.println("")
       Left = (int)myObject["Left"];
     }
     if (myObject.hasOwnProperty("Right"))
