@@ -216,11 +216,7 @@ void initWiFi() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi ..");
   while (WiFi.status() != WL_CONNECTED) {
-    switch(WiFi.status())
-    {
-      case WL_CONNECTED:
-    }
-
+    Serial.print('.');
     delay(1000);
   }
   Serial.println(WiFi.localIP());
@@ -236,12 +232,18 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     
     JSONVar myObject = JSON.parse((const char*)data);
     if (myObject.hasOwnProperty("Left")) {
-      Sereal.println("")
+      
       Left = (int)myObject["Left"];
+      
+      Serial.print("Left: ");
+      Serial.println(Left);
     }
     if (myObject.hasOwnProperty("Right"))
     {
       Right = (int)myObject["Right"];
+
+      Serial.print("Right: ");
+      Serial.println(Right);
     }
   }
 }
